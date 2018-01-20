@@ -60,29 +60,41 @@ def parse_recipe(page):
     
     # get time, yield, level info
     info = {}
-    recipe_info = soup.find_all("div", class_="parbase recipeInfo")[0]
-    bits = recipe_info.contents[2]
-    parts = bits.contents
-    time_info = parts[3].contents[1].contents[1]
-    time_bits = [x for x in time_info.contents if x != "\n"]
-    for x in range(round (len(time_bits) / 2)):
-        info.update({"Time To " + time_bits[x * 2].contents[0]:time_bits[(x * 2) + 1].contents[0]})
+#    recipe_info = soup.find_all("div", class_="parbase recipeInfo")[0]
+#    bits = recipe_info.contents[2]
+#    parts = bits.contents
+    time_info = soup.find("div", class_="parbase recipeInfo time")
+    if not time_info == None:
+        time_bits = [x for x in time_info.contents if x != "\n"]
+        for x in range(round (len(time_bits) / 2)):
+            info.update({"Time To " + time_bits[x * 2].contents[0]:time_bits[(x * 2) + 1].contents[0]})
+    
     yld_lvl = soup.find_all("dd", class_="o-RecipeInfo__a-Description")
-    info.update({"Yield:":yld_lvl[0].string.strip()})
-    info.update({"Level:":yld_lvl[1].string.strip()})
+    if not yld_lvl == None:
+        info.update({"Yield:":yld_lvl[0].string.strip()})
+        info.update({"Level:":yld_lvl[1].string.strip()})
     
     # parse ingredients
     ing = soup.find_all("div", class_="o-Ingredients__m-Body")[0].find_all("li")
-    info.update({"Number of Ingredients:":len(ing)})
-    ing_list = [l.contents[3].contents[0].strip() for l in ing]
+    if not ing == None:
+        info.update({"Number of Ingredients:":len(ing)})
+        ing_list = [l.contents[3].contents[0].strip() for l in ing]
+    else:
+        ing_list = []
     
     # parse directions
     directions = soup.find("div", class_="o-Method__m-Body")
-    instr = [i.string.strip() for i in directions.contents if i != "\n" and len(i.contents) == 1]
+    if not directions == None:    
+        instr = [i.string.strip() for i in directions.contents if i != "\n" and len(i.contents) == 1]
+    else:
+        instr = []
 
     # parse tags
     tags = soup.find("div", class_="o-Capsule__m-TagList m-TagList")
-    all_tags = [t.string.strip() for t in tags.contents if t != "\n"]
+    if not tags == None:
+        all_tags = [t.string.strip() for t in tags.contents if t != "\n"]
+    else:
+        all_tags = []
 
     # create recipe object
     recipe = Recipe(title, source, url, ing_list, info, instr, all_tags)
