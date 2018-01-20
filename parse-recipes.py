@@ -21,6 +21,18 @@ class Recipe(object):
         self.instr = instr
         self.tags = tags
 
+    def recipe_card(self):
+        line = ("-" * 100) + "\n"
+        t = "Title: " + str(self.title) + "\n"
+        s = "Source: " + str(self.source) + "\n"
+        u = "URL: " + str(self.url) + "\n"
+        tags = "Tags: \n\t-" + "\n\t-".join(self.tags) + "\n\n"
+        inf = "Quick Info: \n\t-" + "\n\t-".join(['%s %s' % (key, value) for (key, value) in self.info.items()]) + "\n\n"
+        ing = "Ingredients: \n\t-" + "\n\t-".join(self.ingredients) + "\n\n"
+        ins = "Instructions: \n" + "\n".join(self.instr) + "\n\n"
+        
+        return line + t + line + s + u + tags + inf + ing + ins + line
+
     def __repr__(self):
         s = "Title: " + str(self.title) + " Info: " + str(self.info) + "Tags: " + str(self.tags)
         return s
