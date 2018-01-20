@@ -32,6 +32,15 @@ class Recipe(object):
         ins = "Instructions: \n" + "\n".join(self.instr) + "\n\n"
         
         return line + t + line + s + u + tags + inf + ing + ins + line
+    
+    def find_tools(self):
+        tools = []
+        for i in self.instr:
+            ind = i.find("in a")
+            if (ind >= 0):
+                tools.append(i[ind: ind + 40])
+                
+        return tools
 
     def __repr__(self):
         s = "Title: " + str(self.title) + " Info: " + str(self.info) + "Tags: " + str(self.tags)
@@ -81,10 +90,27 @@ def parse_recipe(page):
 
     return recipe
 
-def parse_page_of_recipe_links():
-    return 0
+def parse_page_of_recipe_links(page):
+    # query the website and return the html to the variable ‘page’
+    page = urllib.request.urlopen(page)
+    # parse the html using beautiful soap and store in variable `soup`
+    soup = BeautifulSoup(page, 'html.parser')
+    links = soup.find("div", class_="l-Columns l-Columns--2up").find_all("li")
+    
+    pg_links = {}
+    for l in links:
+        title = l.string.lower()
+        link = "http:" + l.a["href"]
+        if not title in pg_links:
+            print("Title: " + title)
+            print("Link: " + link)
+            recipe = parse_recipe(link)
+            pg_links.update({title:recipe})
+            
+    return pg_links
 
 def parse_all_recipes():
     return 0
 
 # parse_recipe("http://www.foodnetwork.com/recipes/food-network-kitchen/slow-cooker-turkey-chili-3361632")
+# soup = parse_page_of_recipe_links("http://www.foodnetwork.com/recipes/a-z/123")
