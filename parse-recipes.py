@@ -48,9 +48,9 @@ class Recipe(object):
         return s
 
 def parse_recipe(page):
+    # check that page exists
     url = page
-
-    request = requests.get(page)
+    request = requests.get(url)
     if not request.status_code < 400:
         return None
    
@@ -100,9 +100,7 @@ def parse_recipe(page):
 
     # create recipe object
     recipe = Recipe(title, source, url, ing_list, info, instr, all_tags)
-    
-    # soup.decompose()
-    
+    soup.decompose()
     return recipe
 
 def parse_page_of_recipe_links(page):
@@ -111,7 +109,10 @@ def parse_page_of_recipe_links(page):
     # parse the html using beautiful soap and store in variable `soup`
     soup = BeautifulSoup(page, 'html.parser')
     links = soup.find("div", class_="l-Columns l-Columns--2up").find_all("li")
-    
+    next_link = soup.find("a", "o-Pagination__a-Button o-Pagination__a-NextButton ")
+    if not next_link == None:
+        next_link = "http::" + next_link["href"]
+        
     pg_links = {}
     for l in links:
         title = l.string.lower()
@@ -123,10 +124,22 @@ def parse_page_of_recipe_links(page):
             if not recipe == None:
                 pg_links.update({title:recipe})
             
-    return pg_links
+    return pg_links, next_link
 
 def parse_all_recipes():
-    return 0
+    categories = ["123", "a", "b", "c", "d", "e", "f", "g", "h", "i", 
+                  "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", 
+                  "u", "v", "w", "xyz"]
+    recipe_box = {}
+    for cat in categories:
+        main_page = "http://www.foodnetwork.com/recipes/a-z" + cat
+        pg_links, next_link = parse_page_of_recipe_links(main_page)
+        recipe_box.update(pg_links)
+        while not next_link == None:
+            pg_links, next_link = parse_page_of_recipe_links(next_link)
+            recipe_box.update(pg_links)
+    
+    return recipe_box
 
 # parse_recipe("http://www.foodnetwork.com/recipes/food-network-kitchen/slow-cooker-turkey-chili-3361632")
 # soup = parse_page_of_recipe_links("http://www.foodnetwork.com/recipes/a-z/123")
