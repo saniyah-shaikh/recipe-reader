@@ -7,7 +7,7 @@ Created on Sat Jan 20 13:26:01 2018
 
 import urllib.request, urllib.error, urllib.parse
 from bs4 import BeautifulSoup
-import pandas as pd
+# import pandas as pd
 import requests
 
 # define a recipe object to hold the information
@@ -59,26 +59,20 @@ def parse_recipe(page):
     # parse the html using beautiful soap and store in variable `soup`
     soup = BeautifulSoup(page, 'html.parser')
     
-    # get title and source
     title = soup.find("meta", property="og:title")
     source = "Food Network"
-    
+
     # get time, yield, level info
     info = {}
-#    recipe_info = soup.find_all("div", class_="parbase recipeInfo")[0]
-#    bits = recipe_info.contents[2]
-#    parts = bits.contents
-    time_info = soup.find("div", class_="parbase recipeInfo time")
+    time_info = soup.find("section", class_="o-RecipeInfo o-Time")
     if not time_info == None:
-        time_bits = [x for x in time_info.contents if x != "\n"]
+        time_bits = [x for x in time_info.contents[1].contents if x != "\n"]
         for x in range(round (len(time_bits) / 2)):
             info.update({"Time To " + time_bits[x * 2].contents[0]:time_bits[(x * 2) + 1].contents[0]})
-    
-    yld = soup.find("dd", class_="o-RecipeInfo o-Yield")
+    yld = soup.find("section", class_="o-RecipeInfo o-Yield")
     if not yld == None:
         info.update({"Yield:":yld.contents[1].contents[3].string.strip()})
-    
-    lvl = soup.find("dd", class_="o-RecipeInfo o-Level")
+    lvl = soup.find("section", class_="o-RecipeInfo o-Level")
     if not lvl == None:
         info.update({"Level:":lvl.contents[1].contents[3].string.strip()})
     
@@ -107,7 +101,7 @@ def parse_recipe(page):
     # create recipe object
     recipe = Recipe(title, source, url, ing_list, info, instr, all_tags)
     
-    soup.decompose()
+    # soup.decompose()
     
     return recipe
 
