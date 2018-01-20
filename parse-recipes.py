@@ -67,10 +67,9 @@ def parse_recipe(page):
     time_bits = [x for x in time_info.contents if x != "\n"]
     for x in range(round (len(time_bits) / 2)):
         info.update({"Time To " + time_bits[x * 2].contents[0]:time_bits[(x * 2) + 1].contents[0]})
-    yld = parts[7].contents[1].contents[3].contents[0].strip()
-    info.update({"Yield:":yld})
-    level = parts[11].contents[1].contents[3].contents[0].strip()
-    info.update({"Level:":level})
+    yld_lvl = soup.find_all("dd", class_="o-RecipeInfo__a-Description")
+    info.update({"Yield:":yld_lvl[0].string.strip()})
+    info.update({"Level:":yld_lvl[1].string.strip()})
     
     # parse ingredients
     ing = soup.find_all("div", class_="o-Ingredients__m-Body")[0].find_all("li")
@@ -79,7 +78,7 @@ def parse_recipe(page):
     
     # parse directions
     directions = soup.find("div", class_="o-Method__m-Body")
-    instr = [i.string.strip() for i in directions.contents if i != "\n"]
+    instr = [i.string.strip() for i in directions.contents if i != "\n" and len(i.contents) == 1]
 
     # parse tags
     tags = soup.find("div", class_="o-Capsule__m-TagList m-TagList")
