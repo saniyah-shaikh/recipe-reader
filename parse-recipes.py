@@ -8,6 +8,7 @@ Created on Sat Jan 20 13:26:01 2018
 import urllib.request, urllib.error, urllib.parse
 from bs4 import BeautifulSoup
 import pandas as pd
+import requests
 
 # define a recipe object to hold the information
 class Recipe(object):
@@ -48,15 +49,19 @@ class Recipe(object):
 
 def parse_recipe(page):
     url = page
+
+    request = requests.get(page)
+    if not request.status_code < 400:
+        return None
+   
     # query the website and return the html to the variable ‘page’
     page = urllib.request.urlopen(url)
     # parse the html using beautiful soap and store in variable `soup`
     soup = BeautifulSoup(page, 'html.parser')
     
     # get title and source
-    title_bits = soup.title.string.split("|")
-    title = title_bits[0]
-    source = title_bits[1]
+    title = soup.find("meta", property="og:title")
+    source = "Food Network"
     
     # get time, yield, level info
     info = {}
@@ -69,10 +74,13 @@ def parse_recipe(page):
         for x in range(round (len(time_bits) / 2)):
             info.update({"Time To " + time_bits[x * 2].contents[0]:time_bits[(x * 2) + 1].contents[0]})
     
-    yld_lvl = soup.find_all("dd", class_="o-RecipeInfo__a-Description")
-    if not yld_lvl == None:
-        info.update({"Yield:":yld_lvl[0].string.strip()})
-        info.update({"Level:":yld_lvl[1].string.strip()})
+    yld = soup.find("dd", class_="o-RecipeInfo o-Yield")
+    if not yld == None:
+        info.update({"Yield:":yld.contents[1].contents[3].string.strip()})
+    
+    lvl = soup.find("dd", class_="o-RecipeInfo o-Level")
+    if not lvl == None:
+        info.update({"Level:":lvl.contents[1].contents[3].string.strip()})
     
     # parse ingredients
     ing = soup.find_all("div", class_="o-Ingredients__m-Body")[0].find_all("li")
@@ -98,7 +106,9 @@ def parse_recipe(page):
 
     # create recipe object
     recipe = Recipe(title, source, url, ing_list, info, instr, all_tags)
-
+    
+    soup.decompose()
+    
     return recipe
 
 def parse_page_of_recipe_links(page):
@@ -116,7 +126,8 @@ def parse_page_of_recipe_links(page):
             print("Title: " + title)
             print("Link: " + link)
             recipe = parse_recipe(link)
-            pg_links.update({title:recipe})
+            if not recipe == None:
+                pg_links.update({title:recipe})
             
     return pg_links
 
