@@ -92,7 +92,7 @@ def parse_quantity(string):
     if string.isdigit():
         return int(string)
     parts = string.split("/")
-    if len (parts) == 2:
+    if len (parts) == 2 and parts[0].isdigit() and parts[1].isdigit():
         return (int(parts[0]) / int(parts[1]))
     return None
 
@@ -135,7 +135,7 @@ def parse_ingreds(ls):
     return ing
         
 
-def parse_recipe(page):
+def parse_recipe(page, title = None):
     # check that page exists
     url = page
     request = requests.get(url)
@@ -147,7 +147,8 @@ def parse_recipe(page):
     # parse the html using beautiful soap and store in variable `soup`
     soup = BeautifulSoup(page, 'html.parser')
     
-    title = soup.find("meta", property="og:title")
+    if title == None:
+        title = soup.find("meta", property="og:title")
     source = "Food Network"
 
     # get time, yield, level info
@@ -165,8 +166,9 @@ def parse_recipe(page):
         info.update({"Level:":lvl.contents[1].contents[3].string.strip()})
     
     # parse ingredients
-    ing = soup.find_all("div", class_="o-Ingredients__m-Body")[0].find_all("li")
+    ing = soup.find("div", class_="o-Ingredients__m-Body")
     if not ing == None:
+        ing = ing.find_all("li")
         info.update({"Number of Ingredients:":len(ing)})
         ing_list = [l.contents[3].contents[0].strip() for l in ing]
     else:
@@ -199,7 +201,7 @@ def parse_page_of_recipe_links(page):
     links = soup.find("div", class_="l-Columns l-Columns--2up").find_all("li")
     next_link = soup.find("a", "o-Pagination__a-Button o-Pagination__a-NextButton ")
     if not next_link == None:
-        next_link = "http::" + next_link["href"]
+        next_link = "http:" + next_link["href"]
         
     pg_links = {}
     for l in links:
@@ -208,21 +210,23 @@ def parse_page_of_recipe_links(page):
         if not title in pg_links:
             print("Title: " + title)
             print("Link: " + link)
-            recipe = parse_recipe(link)
+            recipe = parse_recipe(link, title)
             if not recipe == None:
                 pg_links.update({title:recipe})
             
     return pg_links, next_link
 
 def parse_all_recipes():
-    categories = ["123", "a", "b", "c", "d", "e", "f", "g", "h", "i", 
-                  "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", 
-                  "u", "v", "w", "xyz"]
+    # categories = ["123", "a", "b", "c", "d", "e", "f", "g", "h", "i", 
+    #               "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", 
+    #              "u", "v", "w", "xyz"]
+    categories = ["123", "xyz"]
     recipe_box = {}
     for cat in categories:
-        main_page = "http://www.foodnetwork.com/recipes/a-z" + cat
+        main_page = "http://www.foodnetwork.com/recipes/a-z/" + cat
         pg_links, next_link = parse_page_of_recipe_links(main_page)
         recipe_box.update(pg_links)
+        print("|" + next_link + "|")
         while not next_link == None:
             pg_links, next_link = parse_page_of_recipe_links(next_link)
             recipe_box.update(pg_links)
