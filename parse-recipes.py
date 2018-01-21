@@ -106,7 +106,7 @@ class Recipe(object):
         return True
     
     # pantry is a dictionary of items as strings to ingredient objects
-    def needed_ingredients(self, pantry):
+    def needed_ing(self, pantry):
         ingreds = 0
         for i in self.ingredients:
             if i in pantry:
@@ -179,7 +179,6 @@ def parse_ingreds(ls):
         
         ingredient = Ingredient(item, quantity, measure)
         ing.append(ingredient)
-        
     return ing
         
 
@@ -280,6 +279,16 @@ def parse_all_recipes():
             recipe_box.update(pg_links)
     
     return recipe_box
+
+def print_makeable_recipes(links, pantry):
+    for r in links.values():
+        if r.can_make(pantry):
+            print(r.recipe_card())
+            
+def print_makeable_recipes_dev(links, pantry, dev):
+    for r in links.values():
+        if r.needed_ing(pantry) <= dev:
+            print(r.recipe_card())
 
 # parse_recipe("http://www.foodnetwork.com/recipes/food-network-kitchen/slow-cooker-turkey-chili-3361632")
 # soup = parse_page_of_recipe_links("http://www.foodnetwork.com/recipes/a-z/123")
