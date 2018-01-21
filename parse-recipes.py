@@ -13,17 +13,17 @@ import requests
 
 
 class Ingredient(object):
-    def __init__(self, item, quanity = None, measure = None, other = None):
+    def __init__(self, item, quantity = None, measure = None, other = None):
         self.item = item
-        self.quanity = quanity
+        self.quantity = quantity
         self.measure = measure
         self.other = other
         
     def __repr__(self):
-        if self.quanity == None:
+        if self.quantity == None:
             q = ""
         else:
-            q = self.quanity
+            q = self.quantity
         if self.measure == None:
             m = ""
         else:
@@ -80,7 +80,7 @@ def get_nouns(text):
     nouns = [word for (word, pos) in nltk.pos_tag(tokenized) if is_noun(pos)] 
     return nouns
 
-def parse_quanity(string):
+def parse_quantity(string):
     words = {'zero': 0, 'one': 1, 'two': 2, 'three': 3, 'four': 4, 'five': 5, 
              'six': 6, 'seven': 7, 'eight': 8, 'nine': 9, 'ten': 10, 
              'eleven': 11, 'twelve': 12, 'thirteen': 13, 'fourteen': 14, 
@@ -114,22 +114,22 @@ def parse_ingreds(ls):
         else:
             measure = None
         
-        quanity = None
+        quantity = None
         for p in parts:
-            q = parse_quanity(p)
+            q = parse_quantity(p)
             if not q == None:
                 indices.append(parts.index(p))
                 if quanity == None:
-                    quanity = q
+                    quantity = q
                 else:
-                    quanity = quanity * q
+                    quantity = quantity * q
         
         if indices == []:
             item = old_ing
         else:
             item = " ".join(parts[max(indices) + 1:])
         
-        ingredient = Ingredient(item, quanity, measure)
+        ingredient = Ingredient(item, quantity, measure)
         ing.append(ingredient)
         
     return ing

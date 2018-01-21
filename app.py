@@ -23,6 +23,11 @@ def shutdown():
 def showSignUp():
     return render_template('input.html')
 
+
+@app.route('/submitInput', methods=['GET', 'POST'])
+def submitInput():
+    return render_template('submitted.html')
+
 @app.route("/")
 @app.route("/main")
 def main():

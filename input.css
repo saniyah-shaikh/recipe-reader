@@ -27,7 +27,7 @@ body {
 .form-input .form-control:focus {
   z-index: 2;
 }
-.form-input input[type="email"] {
+.form-input input[type="number"] {
   margin-bottom: -1px;
   border-bottom-right-radius: 0;
   border-bottom-left-radius: 0;
