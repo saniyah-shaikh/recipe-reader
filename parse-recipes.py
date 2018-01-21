@@ -4,11 +4,36 @@ Created on Sat Jan 20 13:26:01 2018
 
 @author: Saniyah
 """
-
+import nltk
 import urllib.request, urllib.error, urllib.parse
 from bs4 import BeautifulSoup
 # import pandas as pd
 import requests
+
+
+
+class Ingredient(object):
+    def __init__(self, item, quanity = None, measure = None, other = None):
+        self.item = item
+        self.quanity = quanity
+        self.measure = measure
+        self.other = other
+        
+    def __repr__(self):
+        if self.quanity == None:
+            q = ""
+        else:
+            q = self.quanity
+        if self.measure == None:
+            m = ""
+        else:
+            m = self.measure
+        if self.item == None:
+            i = ""
+        else:
+            i = self.item
+        s = str(q) + " " + str(m) + " " + str(i)
+        return s
 
 # define a recipe object to hold the information
 class Recipe(object):
@@ -29,7 +54,7 @@ class Recipe(object):
         u = "URL: " + str(self.url) + "\n"
         tags = "Tags: \n\t-" + "\n\t-".join(self.tags) + "\n\n"
         inf = "Quick Info: \n\t-" + "\n\t-".join(['%s %s' % (key, value) for (key, value) in self.info.items()]) + "\n\n"
-        ing = "Ingredients: \n\t-" + "\n\t-".join(self.ingredients) + "\n\n"
+        ing = "Ingredients: \n\t-" + "\n\t-".join([str(i) for i in self.ingredients]) + "\n\n"
         ins = "Instructions: \n" + "\n".join(self.instr) + "\n\n"
         
         return line + t + line + s + u + tags + inf + ing + ins + line
@@ -46,6 +71,69 @@ class Recipe(object):
     def __repr__(self):
         s = "Title: " + str(self.title) + " Info: " + str(self.info) + "Tags: " + str(self.tags)
         return s
+    
+def get_nouns(text):
+    # function to test if something is a noun
+    is_noun = lambda pos: pos[:2] == 'NN'
+    # do the nlp stuff
+    tokenized = nltk.word_tokenize(text)
+    nouns = [word for (word, pos) in nltk.pos_tag(tokenized) if is_noun(pos)] 
+    return nouns
+
+def parse_quanity(string):
+    words = {'zero': 0, 'one': 1, 'two': 2, 'three': 3, 'four': 4, 'five': 5, 
+             'six': 6, 'seven': 7, 'eight': 8, 'nine': 9, 'ten': 10, 
+             'eleven': 11, 'twelve': 12, 'thirteen': 13, 'fourteen': 14, 
+             'fifteen': 15, 'sixteen': 16, 'seventeen': 17,
+             'eighteen': 18, 'nineteen': 19, 'twenty': 20}
+    string = string.lower()
+    if string in words:
+        return words[string]
+    if string.isdigit():
+        return int(string)
+    parts = string.split("/")
+    if len (parts) == 2:
+        return (int(parts[0]) / int(parts[1]))
+    return None
+
+def parse_ingreds(ls):
+    measures = set(["tablespoon", "teaspoon", "pound", "ounce", "can", "cup", 
+                "clove", "pint", "quart", "gallon", "drop"])
+    measures.update([m + "s" for m in measures])
+    measures.update(["dash", "dashes", "pinch", "pinches"])
+    ing = []
+    for i in ls:
+        old_ing = i.replace("-", " ")
+        parts = old_ing.split(" ")
+        intersect = set(parts) & measures
+        
+        indices = []
+        if not len(intersect) == 0:
+            measure = list(intersect)[0]
+            indices.append(parts.index(measure))
+        else:
+            measure = None
+        
+        quanity = None
+        for p in parts:
+            q = parse_quanity(p)
+            if not q == None:
+                indices.append(parts.index(p))
+                if quanity == None:
+                    quanity = q
+                else:
+                    quanity = quanity * q
+        
+        if indices == []:
+            item = old_ing
+        else:
+            item = " ".join(parts[max(indices) + 1:])
+        
+        ingredient = Ingredient(item, quanity, measure)
+        ing.append(ingredient)
+        
+    return ing
+        
 
 def parse_recipe(page):
     # check that page exists
@@ -99,7 +187,7 @@ def parse_recipe(page):
         all_tags = []
 
     # create recipe object
-    recipe = Recipe(title, source, url, ing_list, info, instr, all_tags)
+    recipe = Recipe(title, source, url, parse_ingreds(ing_list), info, instr, all_tags)
     soup.decompose()
     return recipe
 
