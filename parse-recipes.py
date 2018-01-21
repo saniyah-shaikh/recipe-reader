@@ -120,6 +120,12 @@ class Recipe(object):
             else:
                 ingreds += 1
         return ingreds
+    
+    def __hash__(self):
+        return hash(self.url)
+    
+    def __eq__(self, other):
+        return isinstance(other, self.__class__) and self.url == other.url
             
     def __repr__(self):
         s = "Title: " + str(self.title) + " Info: " + str(self.info) + "Tags: " + str(self.tags)
@@ -299,11 +305,13 @@ def print_recipes_with_tag(links, tag):
     for r in links.values():
         if tag in r.tags:
             print(r.recipe_card())
-            
-recipe = parse_recipe("http://www.foodnetwork.com/recipes/ree-drummond/simple-perfect-chili-recipe-2107099")
-pantry = {}
-for i in recipe.ingredients:
-    pantry.update({i.item:i})
+   
+def make_pantry_from_recipe(page):         
+    recipe = parse_recipe(page)
+    pantry = {}
+    for i in recipe.ingredients:
+        pantry.update({i.item:i})
+    return pantry
 
 # parse_recipe("http://www.foodnetwork.com/recipes/food-network-kitchen/slow-cooker-turkey-chili-3361632")
 # soup = parse_page_of_recipe_links("http://www.foodnetwork.com/recipes/a-z/123")
