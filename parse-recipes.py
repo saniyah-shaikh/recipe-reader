@@ -4,13 +4,10 @@ Created on Sat Jan 20 13:26:01 2018
 
 @author: Saniyah
 """
-import nltk
 import urllib.request, urllib.error, urllib.parse
 from bs4 import BeautifulSoup
-# import pandas as pd
 import requests
-
-
+import nltk
 
 class Ingredient(object):
     def __init__(self, item, quantity = None, measure = None, other = None):
@@ -34,6 +31,36 @@ class Ingredient(object):
             i = self.item
         s = str(q) + " " + str(m) + " " + str(i)
         return s
+    
+    def __eq__(self, other):
+        return isinstance(other, self.__class__) and self.item == other.item
+    
+    def __ne__(self, other):
+        return not isinstance(other, self.__class__) or not self.item == other.item
+    
+    def __lt__(self, other):
+        if self.item == other.item:
+            return self.quantity < other.quantity
+        else:
+            return self.item < other.item
+        
+    def __le__(self, other):
+        if self.item == other.item:
+            return self.quantity <= other.quantity
+        else:
+            return self.item <= other.item
+
+    def __gt__(self, other):
+        if self.item == other.item:
+            return self.quantity > other.quantity
+        else:
+            return self.item > other.item 
+        
+    def __ge__(self, other):
+        if self.item == other.item:
+            return self.quantity >= other.quantity
+        else:
+            return self.item >= other.item    
 
 # define a recipe object to hold the information
 class Recipe(object):
@@ -49,7 +76,7 @@ class Recipe(object):
 
     def recipe_card(self):
         line = ("-" * 100) + "\n"
-        t = "Title: " + str(self.title) + "\n"
+        t = str(self.title) + "\n"
         s = "Source: " + str(self.source) + "\n"
         u = "URL: " + str(self.url) + "\n"
         tags = "Tags: \n\t-" + "\n\t-".join(self.tags) + "\n\n"
@@ -67,7 +94,28 @@ class Recipe(object):
                 tools.append(i[ind: ind + 40])
                 
         return tools
-
+    
+    # pantry is a dictionary of items as strings to ingredient objects
+    def can_make(self, pantry):
+        for i in self.ingredients:
+            if i in pantry:
+                if i > pantry[i.title]:
+                    return False
+            else:
+                return False
+        return True
+    
+    # pantry is a dictionary of items as strings to ingredient objects
+    def needed_ingredients(self, pantry):
+        ingreds = 0
+        for i in self.ingredients:
+            if i in pantry:
+                if i > pantry[i.title]:
+                   ingreds += 1 
+            else:
+                ingreds += 1
+        return ingreds
+            
     def __repr__(self):
         s = "Title: " + str(self.title) + " Info: " + str(self.info) + "Tags: " + str(self.tags)
         return s
