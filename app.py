@@ -14,12 +14,17 @@ def shutdown_server():
         raise RuntimeError('Not running with the Werkzeug Server')
     func()
 
-@app.route('/shutdown', methods=['POST'])
+@app.route('/shutdown', methods=['GET'])
 def shutdown():
     shutdown_server()
     return 'Server shutting down...'
 
+@app.route('/showInput')
+def showSignUp():
+    return render_template('input.html')
+
 @app.route("/")
+@app.route("/main")
 def main():
     return render_template('index.html')
 
