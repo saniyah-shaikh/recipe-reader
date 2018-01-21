@@ -3,13 +3,8 @@
  
 <head>
     <title>Recipe Finder</title>
- 
- 
     <link href="http://getbootstrap.com/dist/css/bootstrap.min.css" rel="stylesheet">
- 
     <link href="http://getbootstrap.com/examples/jumbotron-narrow/jumbotron-narrow.css" rel="stylesheet">
- 
- 
 </head>
  
 <body>
@@ -30,12 +25,14 @@
         </div>
  
         <div class="jumbotron">
-            <h1>Recipe Finder</h1>
-            <p class="lead">Ingredient Successfully Submitted</p>
-            <p><a class="btn btn-lg btn-success" href="showInput" role="button">Add an ingredient!</a>
-            <a class="btn btn-lg btn-success" href="showPantry" role="button">Show Pantry!</a>
-            <a class="btn btn-lg btn-success" href="showFilter" role="button">Find a Recipe!</a>
-            </p>
+            <h1>Search & Filter Recipes</h1>
+            <form class="form-input">
+            
+            <label for="inputDeviation" class="sr-only">Deviation</label>
+            <input type="number" name="inputDeviation" id="inputDeviation" class="form-control" placeholder="Deviation" required autofocus>
+        
+            <button id="btnInput" class="btn btn-lg btn-primary btn-block" type="button">Filter</button>
+            </form>
         </div>
  
         <footer class="footer">

@@ -20,9 +20,16 @@ def shutdown():
     return 'Server shutting down...'
 
 @app.route('/showInput')
-def showSignUp():
+def showInput():
     return render_template('input.html')
 
+@app.route('/showPantry')
+def showPantry():
+    return render_template('pantry.html')
+
+@app.route('/showFilter')
+def showFilter():
+    return render_template('filter.html')
 
 @app.route('/submitInput', methods=['GET', 'POST'])
 def submitInput():
