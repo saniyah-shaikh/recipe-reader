@@ -1,5 +1,5 @@
 $(function() {
-    $('#btnSignUp').click(function() {
+    $('#btnInput').click(function() {
  
         $.ajax({
             url: '/submitInput',
