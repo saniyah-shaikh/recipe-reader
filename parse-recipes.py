@@ -32,6 +32,9 @@ class Ingredient(object):
         s = str(q) + " " + str(m) + " " + str(i)
         return s
     
+    def __hash__(self):
+        return hash(self.item)
+    
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.item == other.item
     
@@ -97,6 +100,8 @@ class Recipe(object):
     
     # pantry is a dictionary of items as strings to ingredient objects
     def can_make(self, pantry):
+        if self.ingredients == None or self.ingredients == []:
+            return False
         for i in self.ingredients:
             if i in pantry:
                 if i > pantry[i.title]:
@@ -267,7 +272,7 @@ def parse_all_recipes():
     # categories = ["123", "a", "b", "c", "d", "e", "f", "g", "h", "i", 
     #               "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", 
     #              "u", "v", "w", "xyz"]
-    categories = ["123", "xyz"]
+    categories = ["xyz"]
     recipe_box = {}
     for cat in categories:
         main_page = "http://www.foodnetwork.com/recipes/a-z/" + cat
@@ -289,6 +294,16 @@ def print_makeable_recipes_dev(links, pantry, dev):
     for r in links.values():
         if r.needed_ing(pantry) <= dev:
             print(r.recipe_card())
+            
+def print_recipes_with_tag(links, tag):
+    for r in links.values():
+        if tag in r.tags:
+            print(r.recipe_card())
+            
+recipe = parse_recipe("http://www.foodnetwork.com/recipes/ree-drummond/simple-perfect-chili-recipe-2107099")
+pantry = {}
+for i in recipe.ingredients:
+    pantry.update({i.item:i})
 
 # parse_recipe("http://www.foodnetwork.com/recipes/food-network-kitchen/slow-cooker-turkey-chili-3361632")
 # soup = parse_page_of_recipe_links("http://www.foodnetwork.com/recipes/a-z/123")
