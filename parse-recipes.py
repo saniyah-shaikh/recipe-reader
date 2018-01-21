@@ -119,7 +119,7 @@ def parse_ingreds(ls):
             q = parse_quantity(p)
             if not q == None:
                 indices.append(parts.index(p))
-                if quanity == None:
+                if quantity == None:
                     quantity = q
                 else:
                     quantity = quantity * q

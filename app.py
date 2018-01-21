@@ -5,7 +5,7 @@ Created on Sat Jan 20 20:54:38 2018
 @author: Saniyah
 """
 
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, json
 app = Flask(__name__)
 
 def shutdown_server():
@@ -26,7 +26,17 @@ def showSignUp():
 
 @app.route('/submitInput', methods=['GET', 'POST'])
 def submitInput():
-    return render_template('submitted.html')
+     # read the posted values from the UI
+    name = request.form['inputName']
+    num = request.form['inputNumber']
+    meas = request.form['inputMeasurement']
+ 
+    # validate the received values
+    if name and num and meas:
+        return json.dumps({'html':'<span>All fields good !!</span>'})
+    else:
+        return json.dumps({'html':'<span>Enter the required fields</span>'})
+    #return render_template('submitted.html')
 
 @app.route("/")
 @app.route("/main")
