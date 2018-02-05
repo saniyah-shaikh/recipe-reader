@@ -7,7 +7,6 @@ Created on Sat Jan 20 13:26:01 2018
 import urllib.request, urllib.error, urllib.parse
 from bs4 import BeautifulSoup
 import requests
-import nltk
 
 class Ingredient(object):
     def __init__(self, item, quantity = None, measure = None, other = None):
@@ -103,7 +102,7 @@ class Recipe(object):
         if self.ingredients == None or self.ingredients == []:
             return False
         for i in self.ingredients:
-            if i in pantry:
+            if i.item in pantry:
                 if i > pantry[i.title]:
                     return False
             else:
@@ -115,7 +114,7 @@ class Recipe(object):
         ingreds = 0
         for i in self.ingredients:
             if i in pantry:
-                if i > pantry[i.title]:
+                if i.quanity > pantry[i.title]:
                    ingreds += 1 
             else:
                 ingreds += 1
@@ -131,13 +130,13 @@ class Recipe(object):
         s = "Title: " + str(self.title) + " Info: " + str(self.info) + "Tags: " + str(self.tags)
         return s
     
-def get_nouns(text):
-    # function to test if something is a noun
-    is_noun = lambda pos: pos[:2] == 'NN'
-    # do the nlp stuff
-    tokenized = nltk.word_tokenize(text)
-    nouns = [word for (word, pos) in nltk.pos_tag(tokenized) if is_noun(pos)] 
-    return nouns
+#def get_nouns(text):
+#    # function to test if something is a noun
+#    is_noun = lambda pos: pos[:2] == 'NN'
+#    # do the nlp stuff
+#    tokenized = nltk.word_tokenize(text)
+#    nouns = [word for (word, pos) in nltk.pos_tag(tokenized) if is_noun(pos)] 
+#    return nouns
 
 def parse_quantity(string):
     words = {'zero': 0, 'one': 1, 'two': 2, 'three': 3, 'four': 4, 'five': 5, 
@@ -242,7 +241,7 @@ def parse_recipe(page, title = None):
     # parse tags
     tags = soup.find("div", class_="o-Capsule__m-TagList m-TagList")
     if not tags == None:
-        all_tags = [t.string.strip() for t in tags.contents if t != "\n"]
+        all_tags = [t.string.strip().lower() for t in tags.contents if t != "\n"]
     else:
         all_tags = []
 
@@ -266,9 +265,10 @@ def parse_page_of_recipe_links(page):
         title = l.string.lower()
         link = "http:" + l.a["href"]
         if not title in pg_links:
-            print("Title: " + title)
-            print("Link: " + link)
+            # print("Title: " + title)
+            # print("Link: " + link)
             recipe = parse_recipe(link, title)
+            # print("Tags: " + str(recipe.tags))
             if not recipe == None:
                 pg_links.update({title:recipe})
             
@@ -303,8 +303,9 @@ def print_makeable_recipes_dev(links, pantry, dev):
             
 def print_recipes_with_tag(links, tag):
     for r in links.values():
-        if tag in r.tags:
-            print(r.recipe_card())
+        if tag.lower() in r.tags:
+            print(r.title + " " + r.url)
+            #print(r.recipe_card())
    
 def make_pantry_from_recipe(page):         
     recipe = parse_recipe(page)
@@ -313,5 +314,9 @@ def make_pantry_from_recipe(page):
         pantry.update({i.item:i})
     return pantry
 
+def test():
+    pg_links, nxt = parse_page_of_recipe_links("http://www.foodnetwork.com/recipes/a-z/123")
+    print("\n\n\n")
+    print_recipes_with_tag(pg_links, "healthy")
 # parse_recipe("http://www.foodnetwork.com/recipes/food-network-kitchen/slow-cooker-turkey-chili-3361632")
 # soup = parse_page_of_recipe_links("http://www.foodnetwork.com/recipes/a-z/123")
