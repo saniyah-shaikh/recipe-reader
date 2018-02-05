@@ -32,17 +32,18 @@ def showPantry():
 def showFilter():
     return render_template('filter.html')
 
-@app.route('/submitInput', methods=['GET', 'POST'])
+@app.route('/submitInput', methods=['POST'])
 def submitInput():
     # read the posted values from the UI
+    # return render_template('submitted.html', item = "test", num = "3", meas = "cup")
     try:
-        name = request.form['inputName']
-        num = request.form['inputNumber']
+        name = request.form['inputItem']
+        num = request.form['inputQuantity']
         meas = request.form['inputMeasurement']
  
         # validate the received values
         if name and num and meas: 
-            return render_template('submitted.html', name = str(name), num = str(num), meas = str(meas))
+            return render_template('submitted.html', item = str(name), num = str(num), meas = str(meas))
         else:
             return render_template('error.html', error = "Error getting inputs")
     
