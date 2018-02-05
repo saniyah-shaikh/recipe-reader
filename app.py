@@ -6,6 +6,7 @@ Created on Sat Jan 20 20:54:38 2018
 """
 
 from flask import Flask, render_template, request
+from backend import parse_recipes as parser
 app = Flask(__name__)
 
 def shutdown_server():
@@ -40,6 +41,7 @@ def submitInput():
  
     # validate the received values
     if name and num and meas:
+        
         return render_template('submitted.html')
     else:
         return render_template('404.html')
