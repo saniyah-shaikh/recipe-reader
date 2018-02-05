@@ -34,17 +34,20 @@ def showFilter():
 
 @app.route('/submitInput', methods=['GET', 'POST'])
 def submitInput():
-     # read the posted values from the UI
-    name = request.form['inputName']
-    num = request.form['inputNumber']
-    meas = request.form['inputMeasurement']
+    # read the posted values from the UI
+    try:
+        name = request.form['inputName']
+        num = request.form['inputNumber']
+        meas = request.form['inputMeasurement']
  
-    # validate the received values
-    if name and num and meas:
-        
-        return render_template('submitted.html')
-    else:
-        return render_template('404.html')
+        # validate the received values
+        if name and num and meas: 
+            return render_template('submitted.html', name = str(name), num = str(num), meas = str(meas))
+        else:
+            return render_template('error.html', error = "Error getting inputs")
+    
+    except Exception as e:
+        return render_template('error.html', error = str(e))
 
 @app.route("/")
 @app.route("/main")
